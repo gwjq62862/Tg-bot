@@ -15,7 +15,7 @@ import * as gemini from './gemini.js';
 
 // 🎁 သင့်ရဲ့ ချစ်ရသူအတွက် အချက်အလက်များကို ဤနေရာတွင် သတ်မှတ်ပါ
 const FIXED_SETTINGS = {
-    city: "Taungoo",      // 👈 တောင်ငူ (Taungoo)
+    city: "Taungoo",       // 👈 တောင်ငူ (Taungoo)
     birthday: "1990-06-15" // 👈 မွေးနေ့ 'YYYY-MM-DD' ပုံစံဖြင့်
 };
 
@@ -65,21 +65,21 @@ bot.onText(/\/start/, async (msg) => {
         return;
     }
 
-    const currentData = await dataStore.readData();
-
-    // 1️⃣ ပထမဆုံးအကြိမ် `/start` ပို့သူကို Cron Job အတွက် Authorized User အဖြစ် သတ်မှတ်ပါ
-    if (currentData.chat_id === 0) {
-        await dataStore.initializeChatId(chatId);
-        await bot.sendMessage(chatId, "✅ သင့်ကို Bot ရဲ့ **Cron Job Receiver** အဖြစ် သတ်မှတ်လိုက်ပါပြီ။\n\nမနက် ၇ နာရီတိုင်း ဂရုစိုက်စာများ ရရှိပါလိမ့်မယ်။ `/help` ကို ပို့ပြီး commands များကို ကြည့်ရှုနိုင်ပါတယ်။");
-        return;
-    }
+    // 1️⃣ Multi-User အတွက် Chat ID အားလုံးကို စာရင်းသွင်းခြင်း (data_store.js အသစ်ကို အသုံးပြုခြင်း)
+    const isNewUser = await dataStore.addChatId(chatId); 
     
-    // 🚨 Testing အတွက် Chat ID ကို စစ်ဆေးစရာမလိုဘဲ အားလုံးကို Welcom ပြုလုပ်ပါ
-    const welcomeMessage = `မင်္ဂလာပါရှင်၊ Caring Bot ပါ။ 
-ကျွန်တော်က Shaminaရဲ့ ကိုယ်ရေးကိုယ်တာ လက်ထောက်ပါ။ /help နဲ့ ရနိုင်တာတွေကို ကြည့်ပါ။`;
+    // 🚨 ပြင်ဆင်ချက် 1: Welcome Message ကို Khali စိတ်ကြိုက်ပုံစံ (အရှင်မပါ) ဖြင့် ပြင်ဆင်ခြင်း
+    let welcomeMessage = `မင်္ဂလာပါရှင်၊ Caring Bot ပါ။ 
+ကျွန်တော်က **Khali** ရဲ့ ကိုယ်ရေးကိုယ်တာ လက်ထောက်ပါ။ /help နဲ့ ရနိုင်တာတွေကို ကြည့်ပါနော်။`;
+    
+    if (isNewUser) {
+        // ပထမဆုံးအကြိမ် နှိပ်သူကိုသာ စာရင်းသွင်းပြီးကြောင်း ပြောပါ။
+        welcomeMessage = `✅ သင့်ကို Bot ရဲ့ **Cron Job Receiver** အဖြစ် စာရင်းသွင်းလိုက်ပါပြီ။\n\nမနက် ၇ နာရီတိုင်း ဂရုစိုက်စာများ ရရှိပါလိမ့်မယ်။\n\n` + welcomeMessage;
+    }
 
     await bot.sendMessage(chatId, welcomeMessage);
 });
+
 
 bot.onText(/\/myinfo/, async (msg) => {
     const chatId = msg.chat.id;
@@ -149,13 +149,14 @@ cron.schedule('0 7 * * *', async () => {
         return console.log('Cron skipped: Bot is not ready.');
     }
 
-    // 🚨 နေ့စဉ် စာပို့ခြင်းကို JSON ထဲက ပထမဆုံး `/start` ပို့သူဆီသို့သာ ပို့မည်
-    const targetChatId = await dataStore.getChatId(); 
-    if (targetChatId === 0) {
-        return console.log('Cron skipped: Authorized user not set in JSON file.');
+    // 🚨 ပြင်ဆင်ချက် 2: Chat ID အားလုံးကို ယူပါ (data_store.js အသစ်ကို အသုံးပြုခြင်း)
+    const allTargetChatIds = await dataStore.getAllChatIds(); 
+    
+    if (allTargetChatIds.length === 0) {
+        return console.log('Cron skipped: No users registered for reminders.');
     }
     
-    console.log(`Running daily check for ${FIXED_SETTINGS.city} to Chat ID: ${targetChatId}`);
+    console.log(`Running daily check for ${FIXED_SETTINGS.city} to ${allTargetChatIds.length} users.`);
 
     let messages = [];
 
@@ -164,10 +165,11 @@ cron.schedule('0 7 * * *', async () => {
         const rawWeatherData = await weather.getWeatherMessage(); 
         const careMessage = await gemini.generateWeatherCareMessage(rawWeatherData, FIXED_SETTINGS.city);
         
-        messages.push(`**🌤️ မင်္ဂလာမနက်ခင်းပါရှင်။**\n\n${careMessage}`);
+        // 🚨 ပြင်ဆင်ချက် 3: Cron Job Message မှာ 'ရှင်' မသုံးဘဲ Khali ရဲ့ စိတ်ကြိုက်ပုံစံဖြင့် ပြင်ဆင်ခြင်း
+        messages.push(`**🌤️ မင်္ဂလာမနက်ခင်းပါ Khali မှာထားတဲ့ ကျွန်တော်မျိုး** ကနေ အကြောင်းကြားပါတယ်နော်။\n\n${careMessage}`);
     } catch (error) {
         console.error('Weather cron error:', error.message);
-        messages.push("ရာသီဥတု သတင်းယူရာတွင် အနည်းငယ် အခက်အခဲရှိနေပါတယ်ရှင်။");
+        messages.push("ရာသီဥတု သတင်းယူရာတွင် အနည်းငယ် အခက်အခဲရှိနေပါတယ် Khali နော်။");
     }
 
     // 2. Birthday Message
@@ -183,7 +185,11 @@ cron.schedule('0 7 * * *', async () => {
 
     if (messages.length > 0) {
         const finalMessage = messages.join('\n\n---\n\n');
-        await bot.sendMessage(targetChatId, finalMessage, { parse_mode: 'Markdown' });
+        
+        // 🚨 ပြင်ဆင်ချက် 4: Loop ပတ်ပြီး Chat ID အားလုံးဆီ ပို့ပါ
+        for (const chatId of allTargetChatIds) {
+            await bot.sendMessage(chatId, finalMessage, { parse_mode: 'Markdown' });
+        }
     } else {
         console.log('No messages to send (Not birthday or no weather data).');
     }

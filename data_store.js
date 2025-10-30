@@ -1,4 +1,4 @@
-// data_store.js
+// data_store.js (အပြည့်အစုံ အစားထိုး ပြင်ဆင်ပါ)
 import { readFile, writeFile } from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -10,22 +10,24 @@ const DATA_FILE = path.resolve(__dirname, 'user_data.json');
 
 let isWriting = false;
 
-// 🚨 readData ကို export ထုတ်လိုက်ပါပြီ။
+// 🚨 Data Structure ကို { chat_ids: [] } အဖြစ် ပြောင်းလိုက်ပါပြီ။
 export async function readData() {
     try {
         const data = await readFile(DATA_FILE, 'utf-8');
         const json = JSON.parse(data);
+        // data.chat_ids သည် Array ဖြစ်ပြီး၊ မရှိရင် Array အလွတ် [] ကို ပြန်ပေးပါမည်။
         return { 
-            chat_id: json.chat_id || 0
+            chat_ids: Array.isArray(json.chat_ids) ? json.chat_ids : []
         };
     } catch (error) {
-        // File မရှိရင် { chat_id: 0 } ကို ပြန်ပေးပါ
-        return { chat_id: 0 }; 
+        // File မရှိရင် { chat_ids: [] } ကို ပြန်ပေးပါ
+        return { chat_ids: [] }; 
     }
 }
 
 async function writeData(data) {
     if (isWriting) {
+        // Writing လုပ်နေရင် စောင့်ပါ
         await new Promise(resolve => setTimeout(resolve, 50)); 
         return writeData(data);
     }
@@ -41,17 +43,23 @@ async function writeData(data) {
     }
 }
 
-export async function initializeChatId(chatId) {
+// 🆕 Function အသစ်: Chat ID ကို စာရင်းထဲ ထည့်သွင်းခြင်း
+export async function addChatId(chatId) {
     const data = await readData();
-    // Chat ID မရှိသေးမှသာ အသစ်ရေးပါ
-    if (data.chat_id === 0) {
-        data.chat_id = chatId;
+    const chatIdNum = Number(chatId);
+    
+    // စာရင်းထဲမှာ မရှိသေးမှသာ အသစ်ထည့်သွင်းပါ
+    if (!data.chat_ids.includes(chatIdNum)) {
+        data.chat_ids.push(chatIdNum);
         await writeData(data);
+        return true; // အသစ်ထည့်သွင်းကြောင်း ပြန်ပေးသည်
     }
-    return data; 
+    return false; // ရှိပြီးသားဖြစ်ကြောင်း ပြန်ပေးသည်
 }
 
-export async function getChatId() {
+// 🆕 Function အသစ်: Chat ID အားလုံးကို ပြန်ယူခြင်း (Cron Job အတွက်)
+export async function getAllChatIds() {
     const data = await readData();
-    return data.chat_id;
+    return data.chat_ids;
 }
+
