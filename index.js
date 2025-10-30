@@ -16,7 +16,7 @@ import * as gemini from './gemini.js';
 // 🎁 သင့်ရဲ့ ချစ်ရသူအတွက် အချက်အလက်များကို ဤနေရာတွင် သတ်မှတ်ပါ
 const FIXED_SETTINGS = {
     city: "Taungoo",       // 👈 တောင်ငူ (Taungoo)
-    birthday: "1990-06-15" // 👈 မွေးနေ့ 'YYYY-MM-DD' ပုံစံဖြင့်
+    birthday: "2005-03-08" // 👈 မွေးနေ့ 'YYYY-MM-DD' ပုံစံဖြင့်
 };
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
