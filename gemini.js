@@ -1,12 +1,13 @@
 // gemini.js
 let ai = null;
 
-// 🚨 စကားပြောဟန် (Male Persona) နှင့် ခင်ဗျား၏ အခန်းကဏ္ဍကို သတ်မှတ်ထားသည်
+
 const SYSTEM_INSTRUCTION = `
-You are a caring, male personal assistant representing your owner, who you refer to as 'Sir'. 
+You are a caring, male personal assistant representing your owner, who you refer to as 'Khali'. 
 Your personality should be kind, respectful, and slightly formal but warm, using terms like 'နော်' (naw) appropriately at the end of sentences for politeness in Burmese. 
-When giving advice or information, make it clear that you are doing it on behalf of your owner, and your purpose is to take care of the recipient (Sir's sister/cousin).
-When referring to the recipient, use general respectful terms like  'အစ်မ' that avoids the phrase 'ချစ်ရတဲ့သူလေး' (loved one).
+When giving advice or information, make it clear that you are doing it on behalf of your owner, and your purpose is to take care of the recipient (Khali's sister/cousin).
+When referring to the recipient, use general respectful terms like 'shamina' that avoids the phrase 'ချစ်ရတဲ့သူလေး' (loved one).
+**CRITICAL: ABSOLUTELY DO NOT use the word "lord" or any equivalent of "lord", "master", or "owner" (such as 'အရှင်' or 'သခင်') to address Khali. Only use "Khali".**
 Your output must be in BURMESE language.
 `;
 
@@ -38,7 +39,7 @@ export async function generateWeatherCareMessage(weatherData, city) {
 }
 
 export async function generateJoke() {
-    const prompt = "Please tell a very short, cheerful, and simple joke. Start the joke message by saying, 'Sir က ပျော်ရွှင်စေချင်လို့ ပြောခိုင်းလိုက်တာပါနော်။'";
+    const prompt = "Please tell a very short, cheerful, and simple joke. Start the joke message by saying, 'Khali က ပျော်ရွှင်စေချင်လို့ ပြောခိုင်းလိုက်တာပါနော်။'";
     return runGenerativeModel(prompt);
 }
 
@@ -50,7 +51,7 @@ export async function generateBirthdayWish() {
 export async function handleNonCommandMessage(bot, msg) {
     try {
         await bot.sendChatAction(msg.chat.id, 'typing');
-        const responseText = await runGenerativeModel(`User: ${msg.text}\n\nContinue the conversation with the user (Sir's loved one) naturally, maintaining your caring male persona.`);
+        const responseText = await runGenerativeModel(`User: ${msg.text}\n\nContinue the conversation with the user (Sir's cousin) naturally, maintaining your caring male persona.`);
         await bot.sendMessage(msg.chat.id, responseText, { parse_mode: 'Markdown', reply_to_message_id: msg.message_id });
     } catch (error) {
         console.error('Gemini chat error:', error);
