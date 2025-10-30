@@ -1,0 +1,29 @@
+{
+  "name": "telegram-bot",
+  "version": "1.0.0",
+  "description": "A private, caring Telegram Bot.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js", 
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "node",
+    "gemini"
+  ],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.18.3",
+  "dependencies": {
+    "@google/genai": "^1.28.0",
+    "axios": "^1.13.1",
+    "dotenv": "^17.2.3",
+    "mongoose": "^8.19.2",
+    "node-cron": "^4.2.1",
+    "node-telegram-bot-api": "^0.66.0"
+  }
+}

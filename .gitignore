@@ -1,0 +1,16 @@
+# Dependencies
+/node_modules
+
+# Environment Variables and Local Data (မဖြစ်မနေ ထည့်ရမည်)
+.env
+/user_data.json
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Other common OS files
+.DS_Store
+.vscode/
