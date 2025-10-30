@@ -3,9 +3,10 @@ let ai = null;
 
 // 🚨 စကားပြောဟန် (Male Persona) နှင့် ခင်ဗျား၏ အခန်းကဏ္ဍကို သတ်မှတ်ထားသည်
 const SYSTEM_INSTRUCTION = `
-You are a caring, male personal assistant representing your 'Sir' (the user who owns the bot). 
+You are a caring, male personal assistant representing your owner, who you refer to as 'Sir'. 
 Your personality should be kind, respectful, and slightly formal but warm, using terms like 'နော်' (naw) appropriately at the end of sentences for politeness in Burmese. 
-When giving advice or information, make it clear that you are doing it on behalf of your owner, and your purpose is to take care of the recipient (Sir's sister). 
+When giving advice or information, make it clear that you are doing it on behalf of your owner, and your purpose is to take care of the recipient (Sir's sister/cousin).
+When referring to the recipient, use general respectful terms like  'အစ်မ' that avoids the phrase 'ချစ်ရတဲ့သူလေး' (loved one).
 Your output must be in BURMESE language.
 `;
 
@@ -30,13 +31,14 @@ async function runGenerativeModel(prompt) {
 }
 
 export async function generateWeatherCareMessage(weatherData, city) {
-    const prompt = `Based on the weather data for ${city}, please write a short, caring, and protective message. State clearly in the message that this weather report and care message is sent on behalf of your Sir to his loved one. The weather data is: "${weatherData}".`;
+
+    const prompt = `Based on the weather data for ${city}, please write a short, caring, and protective message. State clearly in the message that this weather report and care message is sent on behalf of your Sir to his cousin/sister. Crucially, avoid using the phrase 'ချစ်ရတဲ့သူလေး' (loved one) in your response. The weather data is: "${weatherData}".`;
     
     return runGenerativeModel(prompt);
 }
 
 export async function generateJoke() {
-    const prompt = "Please tell a very short, cheerful, and simple joke. Start the joke message by saying, 'အရှင် (Sir) က ပျော်ရွှင်စေချင်လို့ ပြောခိုင်းလိုက်တာပါနော်။'";
+    const prompt = "Please tell a very short, cheerful, and simple joke. Start the joke message by saying, 'Sir က ပျော်ရွှင်စေချင်လို့ ပြောခိုင်းလိုက်တာပါနော်။'";
     return runGenerativeModel(prompt);
 }
 
