@@ -28,14 +28,12 @@ async function getWeatherData() {
     return response.data;
 }
 
-// ⚠️ Message Format မဟုတ်ဘဲ Raw Data ပုံစံဖြင့် ပြန်ပေးပါ
 export async function getWeatherMessage() {
     const data = await getWeatherData();
     const temp = Math.round(data.main.temp);
     const description = data.weather[0].description;
     const humidity = data.main.humidity;
 
-    // AI ကို ပို့ဖို့အတွက် Data များကို စာကြောင်းတစ်ကြောင်းထဲတွင် ပြန်ပေးပါ
     return `${fixedCity} မှာ အပူချိန် ${temp}°C, အခြေအနေ: ${description}, စိုထိုင်းဆ: ${humidity}% ဖြစ်ပါတယ်။`;
 }
 

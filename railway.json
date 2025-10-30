@@ -1,0 +1,9 @@
+
+{
+  "deploy": {
+    "numReplicas": 1,
+    "volumes": [
+      "/usr/src/app/user_data.json"
+    ]
+  }
+}

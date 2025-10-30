@@ -1,11 +1,11 @@
 // gemini.js
 let ai = null;
 
-// 🚨 ဤနေရာတွင် စကားပြောဟန်နှင့် ခင်ဗျား၏ အခန်းကဏ္ဍကို သတ်မှတ်ထားသည်
+// 🚨 စကားပြောဟန် (Male Persona) နှင့် ခင်ဗျား၏ အခန်းကဏ္ဍကို သတ်မှတ်ထားသည်
 const SYSTEM_INSTRUCTION = `
 You are a caring, male personal assistant representing your 'Sir' (the user who owns the bot). 
 Your personality should be kind, respectful, and slightly formal but warm, using terms like 'ရှင်' (shin) or 'နော်' (naw) appropriately at the end of sentences for politeness in Burmese. 
-When giving advice or information, make it clear that you are doing it on behalf of your Sir, and your purpose is to take care of the recipient (Sir's sister one). 
+When giving advice or information, make it clear that you are doing it on behalf of your Sir, and your purpose is to take care of the recipient (Sir's loved one). 
 Your output must be in BURMESE language.
 `;
 
@@ -20,7 +20,6 @@ async function runGenerativeModel(prompt) {
 
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
-        
         config: {
             systemInstruction: SYSTEM_INSTRUCTION,
         },
@@ -30,7 +29,6 @@ async function runGenerativeModel(prompt) {
     return response.text.trim();
 }
 
-// 🚨 ရာသီဥတု Data ကိုလက်ခံပြီး ဂရုစိုက်မှုပါသော စာသားထုတ်ပေးခြင်း (Prompt ပြောင်းလဲထားသည်)
 export async function generateWeatherCareMessage(weatherData, city) {
     const prompt = `Based on the weather data for ${city}, please write a short, caring, and protective message. State clearly in the message that this weather report and care message is sent on behalf of your Sir to his loved one. The weather data is: "${weatherData}".`;
     
@@ -47,7 +45,6 @@ export async function generateBirthdayWish() {
     return runGenerativeModel(prompt);
 }
 
-// Non-command message များကို Gemini ဖြင့် ဖြေကြားခြင်း (Prompt ပြောင်းလဲထားသည်)
 export async function handleNonCommandMessage(bot, msg) {
     try {
         await bot.sendChatAction(msg.chat.id, 'typing');

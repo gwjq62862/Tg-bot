@@ -10,7 +10,8 @@ const DATA_FILE = path.resolve(__dirname, 'user_data.json');
 
 let isWriting = false;
 
-async function readData() {
+// 🚨 readData ကို export ထုတ်လိုက်ပါပြီ။
+export async function readData() {
     try {
         const data = await readFile(DATA_FILE, 'utf-8');
         const json = JSON.parse(data);
@@ -18,6 +19,7 @@ async function readData() {
             chat_id: json.chat_id || 0
         };
     } catch (error) {
+        // File မရှိရင် { chat_id: 0 } ကို ပြန်ပေးပါ
         return { chat_id: 0 }; 
     }
 }
@@ -41,6 +43,7 @@ async function writeData(data) {
 
 export async function initializeChatId(chatId) {
     const data = await readData();
+    // Chat ID မရှိသေးမှသာ အသစ်ရေးပါ
     if (data.chat_id === 0) {
         data.chat_id = chatId;
         await writeData(data);

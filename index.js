@@ -15,7 +15,7 @@ import * as gemini from './gemini.js';
 
 // 🎁 သင့်ရဲ့ ချစ်ရသူအတွက် အချက်အလက်များကို ဤနေရာတွင် သတ်မှတ်ပါ
 const FIXED_SETTINGS = {
-    city: "Taungoo",      // 👈 တောင်ငူ (Taungoo) သို့ သတ်မှတ်ထားပါသည်
+    city: "Taungoo",      // 👈 တောင်ငူ (Taungoo)
     birthday: "1990-06-15" // 👈 မွေးနေ့ 'YYYY-MM-DD' ပုံစံဖြင့်
 };
 
@@ -25,14 +25,12 @@ const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 const ai = new GoogleGenAI(process.env.GEMINI_API_KEY);
 
-let authorisedChatId = 0; 
 let isBotReady = false; 
 
 // Bot စတင်ချိန် Initialization
 async function initializeBot() {
     try {
-        authorisedChatId = await dataStore.getChatId();
-        console.log(`Bot is ready. Authorized Chat ID: ${authorisedChatId || 'Not set yet'}`);
+        console.log(`Bot is initializing...`);
         isBotReady = true;
 
         // Modules များကို Configuration ပေးခြင်း
@@ -48,15 +46,11 @@ async function initializeBot() {
 initializeBot(); 
 
 // ------------------------------------
-// 🛑 STRICT AUTHORISATION FUNCTION
+// 🛑 STRICT AUTHORISATION FUNCTION (Testing အတွက် ဖြုတ်ထားသည်)
 // ------------------------------------
-
 function isAuthorised(chatId) {
-    const isAuth = authorisedChatId !== 0 && chatId === authorisedChatId;
-    if (!isAuth && authorisedChatId !== 0) {
-        console.log(`Unauthorized access attempt from Chat ID: ${chatId}`);
-    }
-    return isAuth;
+    // 🚨 Testing အတွက် လူတိုင်းသုံးနိုင်ရန် 'true' ပြန်ပေးသည်
+    return true; 
 }
 
 // ------------------------------------
@@ -71,17 +65,16 @@ bot.onText(/\/start/, async (msg) => {
         return;
     }
 
-    if (authorisedChatId === 0) {
+    const currentData = await dataStore.readData();
+
+    // 1️⃣ ပထမဆုံးအကြိမ် `/start` ပို့သူကို Cron Job အတွက် Authorized User အဖြစ် သတ်မှတ်ပါ
+    if (currentData.chat_id === 0) {
         await dataStore.initializeChatId(chatId);
-        authorisedChatId = chatId; 
-        await bot.sendMessage(chatId, "✅ သင့်ကို Bot ရဲ့ **Authorized User** အဖြစ် သတ်မှတ်လိုက်ပါပြီ။\n\nကျေးဇူးပြုပြီး `/help` ကို ပို့ပြီး ရနိုင်တဲ့ commands တွေကို ကြည့်ရှုနိုင်ပါတယ်။");
+        await bot.sendMessage(chatId, "✅ သင့်ကို Bot ရဲ့ **Cron Job Receiver** အဖြစ် သတ်မှတ်လိုက်ပါပြီ။\n\nမနက် ၇ နာရီတိုင်း ဂရုစိုက်စာများ ရရှိပါလိမ့်မယ်။ `/help` ကို ပို့ပြီး commands များကို ကြည့်ရှုနိုင်ပါတယ်။");
         return;
     }
-
-    if (!isAuthorised(chatId)) {
-        return;
-    }
-
+    
+    // 🚨 Testing အတွက် Chat ID ကို စစ်ဆေးစရာမလိုဘဲ အားလုံးကို Welcom ပြုလုပ်ပါ
     const welcomeMessage = `မင်္ဂလာပါရှင်၊ Caring Bot ပါ။ 
 ကျွန်တော်က အရှင်ရဲ့ ကိုယ်ရေးကိုယ်တာ လက်ထောက်ပါ။ `/help` နဲ့ ရနိုင်တာတွေကို ကြည့်ပါ။`;
 
@@ -152,13 +145,17 @@ bot.onText(/\/help/, async (msg) => {
 
 // ⚠️ မနက် ၇ နာရီတိုင်း အကြောင်းကြားစာ ပို့ရန် (0 7 * * *)
 cron.schedule('0 7 * * *', async () => {
-    if (!isBotReady || authorisedChatId === 0) {
-        return console.log('Cron skipped: Authorized user not set.');
+    if (!isBotReady) {
+        return console.log('Cron skipped: Bot is not ready.');
     }
 
-    const targetChatId = authorisedChatId;
+    // 🚨 နေ့စဉ် စာပို့ခြင်းကို JSON ထဲက ပထမဆုံး `/start` ပို့သူဆီသို့သာ ပို့မည်
+    const targetChatId = await dataStore.getChatId(); 
+    if (targetChatId === 0) {
+        return console.log('Cron skipped: Authorized user not set in JSON file.');
+    }
     
-    console.log(`Running daily check for ${FIXED_SETTINGS.city}`);
+    console.log(`Running daily check for ${FIXED_SETTINGS.city} to Chat ID: ${targetChatId}`);
 
     let messages = [];
 
