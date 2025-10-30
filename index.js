@@ -76,7 +76,7 @@ bot.onText(/\/start/, async (msg) => {
     
     // 🚨 Testing အတွက် Chat ID ကို စစ်ဆေးစရာမလိုဘဲ အားလုံးကို Welcom ပြုလုပ်ပါ
     const welcomeMessage = `မင်္ဂလာပါရှင်၊ Caring Bot ပါ။ 
-ကျွန်တော်က အရှင်ရဲ့ ကိုယ်ရေးကိုယ်တာ လက်ထောက်ပါ။ /help နဲ့ ရနိုင်တာတွေကို ကြည့်ပါ။`;
+ကျွန်တော်က Shaminaရဲ့ ကိုယ်ရေးကိုယ်တာ လက်ထောက်ပါ။ /help နဲ့ ရနိုင်တာတွေကို ကြည့်ပါ။`;
 
     await bot.sendMessage(chatId, welcomeMessage);
 });
